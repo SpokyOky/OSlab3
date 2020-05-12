@@ -9,14 +9,14 @@ namespace OSlab3
     public class MemoryManagment
     {
         private Process process;
-        private List<Page> clock;
+        private Queue<Page> pageQueue;
         public Memory memory;
 
         public MemoryManagment(int memorySize, int pageSize)
         {
             memory = new Memory(memorySize, pageSize);
             process = new Process(5, 15);
-            clock = new List<Page>();
+            pageQueue = new Queue<Page>();
         }
 
         public int addPage(Process process)
@@ -42,18 +42,18 @@ namespace OSlab3
                     page.recourse = true;
                     page.presence = true;
                     page.physicalAddress = emptyPageId;
-                    clock.Add(page);
+                    pageQueue.Enqueue(page);
                 }
                 else
                 {
                     while (true)
                     {
-                        Page replacePage = clock[0];
-                        clock.RemoveAt(clock.Count - 1);
+                        Page replacePage = pageQueue.Peek();
+                        pageQueue.Dequeue();
                         if (replacePage.recourse)
                         {
                             replacePage.recourse = false;
-                            clock.Add(replacePage);
+                            pageQueue.Enqueue(replacePage);
                         }
                         else
                         {
@@ -69,7 +69,7 @@ namespace OSlab3
                             page.recourse = true;
                             page.presence = true;
                             page.physicalAddress = replacePage.physicalAddress;
-                            clock.Add(page);
+                            pageQueue.Enqueue(page);
                             replacePage.presence = false;
                             replacePage.virtualAddress = process.addPage(replacePage);
                             replacePage.physicalAddress = -1;
